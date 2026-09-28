@@ -30,3 +30,47 @@ document.addEventListener("DOMContentLoaded",()=>{
     save();
   });
 });
+
+// Gacha safety: while a 1/10-pack reveal still has unopened cards,
+// keep every purchase button locked so a new pull cannot overwrite the pending reveal.
+(()=>{
+  const purchaseIds=["singleBtn","tenBtn","hundredBtn","thousandBtn"];
+  const hasPendingReveal=()=>(
+    typeof currentPullCards!=="undefined" &&
+    typeof currentRevealMode!=="undefined" &&
+    currentRevealMode==="gacha" &&
+    currentPullCards.length>0 &&
+    currentPullCards.some(c=>!c._revealed)
+  );
+
+  const applyPurchaseLock=()=>{
+    if(!hasPendingReveal())return;
+    for(const id of purchaseIds){
+      const el=document.getElementById(id);
+      if(el)el.disabled=true;
+    }
+  };
+
+  if(typeof updateStats==="function"){
+    const originalUpdateStats=updateStats;
+    updateStats=function(...args){
+      const result=originalUpdateStats.apply(this,args);
+      applyPurchaseLock();
+      return result;
+    };
+  }
+
+  for(const id of purchaseIds){
+    const el=document.getElementById(id);
+    if(!el)continue;
+    el.addEventListener("click",e=>{
+      if(!hasPendingReveal())return;
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      navigator.vibrate?.(25);
+    },true);
+  }
+
+  // Initial sync in case the patch loads while a reveal is already active.
+  applyPurchaseLock();
+})();
