@@ -4,7 +4,7 @@
       const use=(id,targetId,fn)=>{const sel=document.getElementById(targetId),card=CARDS.find(c=>c.id===sel?.value);if(!card){alert('カードを選択してください。');return}if((state.consumables[id]||0)<1)return;fn(card);state.consumables[id]--;save();renderItems();renderTeam();renderCollection();renderPlayerHud()};
       document.getElementById('v45UseMastery').onclick=()=>use('masteryBook','v45MasteryTarget',c=>{const r=addMasteryExp(c,500);alert(`${c.name} の熟練EXP +${Math.floor(r.added)}${r.afterLevel>r.beforeLevel?`\n熟練Lv ${r.beforeLevel} → ${r.afterLevel}`:''}`)});
       document.getElementById('v45UseUltimate').onclick=()=>use('ultimateBook','v45UltimateTarget',c=>{const r=addUltimateExp(c,1000);alert(`${c.name} のULTIMATE EXP +1000\n必殺Lv ${r.beforeLevel} → ${r.afterLevel}`)});
-      document.getElementById('v45UseLimit').onclick=()=>use('limitCrystal','v45LimitTarget',c=>{const before=cardLimitRank(c);state.counts[c.id]=Math.min(LIMIT_COPY_THRESHOLDS[MAX_LIMIT_RANK],(state.counts[c.id]||0)+1);const after=cardLimitRank(c);alert(`${c.name} に限界突破素材+1枚分${after>before?`\n★${before} → ★${after}`:''}`)});
+      document.getElementById('v45UseLimit').onclick=()=>use('limitCrystal','v45LimitTarget',c=>{const before=cardLimitRank(c);const max=typeof cardLimitMaxCopies==='function'?cardLimitMaxCopies(c):LIMIT_COPY_THRESHOLDS[MAX_LIMIT_RANK];state.counts[c.id]=Math.min(max,(state.counts[c.id]||0)+1);const after=cardLimitRank(c);alert(`${c.name} に限界突破素材+1枚分${after>before?`\n★${before} → ★${after}`:''}`)});
     }
   }
 
