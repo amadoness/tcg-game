@@ -40,13 +40,20 @@ jobs:
       - name: Apply browser patches
         run: |
           cp patches/team-detail-v44.js site/team-detail-v44.js
+          cat patches/progression-v45-part*.js > site/progression-v45.js
+          node --check site/team-detail-v44.js
+          node --check site/progression-v45.js
           python3 - <<'PY'
           from pathlib import Path
           p=Path("site/index.html")
           s=p.read_text(encoding="utf-8")
-          tag='<script src="team-detail-v44.js?v=44"></script>'
-          if tag not in s:
-              s=s.replace("</body>", tag+"\n</body>")
+          tags=[
+              '<script src="team-detail-v44.js?v=45"></script>',
+              '<script src="progression-v45.js?v=45"></script>',
+          ]
+          for tag in tags:
+              if tag not in s:
+                  s=s.replace("</body>", tag+"\n</body>")
           p.write_text(s, encoding="utf-8")
           PY
 
