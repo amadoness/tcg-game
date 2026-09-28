@@ -4,6 +4,7 @@
 
   function itemsUnlocked(){return Number(state.bestFloor||0)>=10}
   function ultimateItemsUnlocked(){return Number(state.bestFloor||0)>=15}
+  function crystalCost(card){return typeof limitCrystalCost==='function'?limitCrystalCost(card):1}
   function ensureConsumables(){
     if(!state.consumables||typeof state.consumables!=='object'||Array.isArray(state.consumables))state.consumables={};
     for(const id of ['masteryBook','ultimateBook','limitCrystal'])if(!Number.isFinite(Number(state.consumables[id])))state.consumables[id]=0;
@@ -37,7 +38,8 @@
   }
   function consume(card,id){
     ensureConsumables();
-    if((state.consumables[id]||0)<1)return;
+    const need=id==='limitCrystal'?crystalCost(card):1;
+    if((state.consumables[id]||0)<need){if(id==='limitCrystal')alert(`限界結晶が足りません。\n${card.name}（${DISP[card.r]}）には ${need}個 必要です。`);return;}
     if(id==='masteryBook'){
       const before=cardMasteryLevel(card);
       const r=grantMasteryExp(card,500);
@@ -56,8 +58,8 @@
       const cap=typeof cardLimitMaxCopies==='function'?cardLimitMaxCopies(card):LIMIT_COPY_THRESHOLDS[MAX_LIMIT_RANK];
       state.counts[card.id]=Math.min(cap,(Number(state.counts[card.id])||0)+1);
       const after=cardLimitRank(card);
-      state.consumables[id]--;
-      alert(`${card.name} に限界突破素材+1枚分${after>before?`\n★${before} → ★${after}`:''}`);
+      state.consumables[id]-=need;
+      alert(`${card.name} に限界突破素材+1枚分\n限界結晶 ${need}個使用${after>before?`\n★${before} → ★${after}`:''}`);
     }
     save();updateStats();renderCollection();renderTeam();renderBattle();
     openFor(card);
@@ -70,9 +72,9 @@
     const items=[
       {id:'masteryBook',name:'熟練の書',desc:'熟練EXP +500',ok:true},
       {id:'ultimateBook',name:'奥義経験書',desc:'ULTIMATE EXP +1000',ok:ultimateItemsUnlocked()&&!!getUltimate(card),reason:ultimateItemsUnlocked()?(getUltimate(card)?'':'このカードはULTIMATEを持っていません'):'15FでULTIMATE強化解禁後に使用可能'},
-      {id:'limitCrystal',name:'限界結晶',desc:'限界突破素材1枚分',ok:cardLimitRank(card)<MAX_LIMIT_RANK,reason:cardLimitRank(card)>=MAX_LIMIT_RANK?'★10 MAXです':''}
+      {id:'limitCrystal',name:'限界結晶',desc:`限界突破素材1枚分（${DISP[card.r]}：${crystalCost(card)}個消費）`,need:crystalCost(card),ok:cardLimitRank(card)<MAX_LIMIT_RANK,reason:cardLimitRank(card)>=MAX_LIMIT_RANK?'★10 MAXです':''}
     ];
-    rows.innerHTML=items.map(x=>`<div class="v46ItemRow"><div><b>${x.name}<span class="v46ItemCount">×${state.consumables[x.id]||0}</span></b><p>${x.desc}${x.ok?'':` / ${x.reason||'使用不可'}`}</p></div><button data-v46-use="${x.id}" ${(!x.ok||(state.consumables[x.id]||0)<1)?'disabled':''}>使用</button></div>`).join('');
+    rows.innerHTML=items.map(x=>`<div class="v46ItemRow"><div><b>${x.name}<span class="v46ItemCount">×${state.consumables[x.id]||0}</span></b><p>${x.desc}${x.ok?'':` / ${x.reason||'使用不可'}`}</p></div><button data-v46-use="${x.id}" ${(!x.ok||(state.consumables[x.id]||0)<(x.need||1))?'disabled':''}>使用</button></div>`).join('');
     rows.querySelectorAll('[data-v46-use]').forEach(b=>b.onclick=()=>consume(card,b.dataset.v46Use));
     modal.classList.add('show');
   }
