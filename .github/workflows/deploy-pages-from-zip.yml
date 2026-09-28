@@ -4,7 +4,8 @@ on:
   push:
     branches: [main]
     paths:
-      - 'tcg-game-v42-browser.zip'
+      - 'tcg-game-v*.zip'
+      - '.github/workflows/deploy-pages-from-zip.yml'
   workflow_dispatch:
 
 permissions:
@@ -23,12 +24,17 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
 
-      - name: Extract browser game
+      - name: Extract latest browser game
         run: |
           rm -rf extracted site
           mkdir -p extracted site
-          unzip -q tcg-game-v42-browser.zip -d extracted
-          cp -a extracted/tcg-game-v42-browser/. site/
+          ZIP="$(ls -1v tcg-game-v*.zip | tail -n 1)"
+          echo "Deploying $ZIP"
+          unzip -q "$ZIP" -d extracted
+          INDEX="$(find extracted -name index.html -type f | head -n 1)"
+          test -n "$INDEX"
+          ROOT="$(dirname "$INDEX")"
+          cp -a "$ROOT"/. site/
 
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
