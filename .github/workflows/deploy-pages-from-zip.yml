@@ -1,0 +1,51 @@
+name: Deploy TCG game to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'tcg-game-v42-browser.zip'
+      - '.github/workflows/deploy-pages-from-zip.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Extract browser game
+        run: |
+          rm -rf extracted site
+          mkdir -p extracted site
+          unzip -q tcg-game-v42-browser.zip -d extracted
+          cp -a extracted/tcg-game-v42-browser/. site/
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: site
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
