@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - 'tcg-game-v*.zip'
+      - 'patches/**'
       - '.github/workflows/deploy-pages-from-zip.yml'
   workflow_dispatch:
 
@@ -35,6 +36,19 @@ jobs:
           test -n "$INDEX"
           ROOT="$(dirname "$INDEX")"
           cp -a "$ROOT"/. site/
+
+      - name: Apply browser patches
+        run: |
+          cp patches/team-detail-v44.js site/team-detail-v44.js
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path("site/index.html")
+          s=p.read_text(encoding="utf-8")
+          tag='<script src="team-detail-v44.js?v=44"></script>'
+          if tag not in s:
+              s=s.replace("</body>", tag+"\n</body>")
+          p.write_text(s, encoding="utf-8")
+          PY
 
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
