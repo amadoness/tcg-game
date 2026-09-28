@@ -10,10 +10,39 @@ ed('mastery'))return [];
   const originalBattleRewardInfo=battleRewardInfo;
   battleRewardInfo=function(floor=activeBattleFloor()){
     const x=originalBattleRewardInfo(floor),m=towerCoinMultiplier();
-    if(m===1)return x;
-    const base=Math.round(x.base*m/5)*5;
-    const milestone=Math.round(x.milestone*m/5)*5;
-    return {...x,base,milestone,total:base+milestone};
+    const rawBase=Number(x.base)||0,rawMilestone=Number(x.milestone)||0;
+    if(m===1)return {...x,rawBase,rawMilestone,bonusBase:0,bonusMilestone:0,bonusTotal:0,towerCoinMultiplier:m};
+    const base=Math.round(rawBase*m/5)*5;
+    const milestone=Math.round(rawMilestone*m/5)*5;
+    return {...x,rawBase,rawMilestone,base,milestone,total:base+milestone,bonusBase:base-rawBase,bonusMilestone:milestone-rawMilestone,bonusTotal:(base-rawBase)+(milestone-rawMilestone),towerCoinMultiplier:m};
+  };
+
+  function v45TowerCoinBreakdown(raw,total,{prefixPlus=false}={}){
+    raw=Math.max(0,Number(raw)||0);total=Math.max(0,Number(total)||0);
+    const bonus=Math.max(0,total-raw),p=prefixPlus?'+':'';
+    if(bonus<=0)return `<b>${p}${total.toLocaleString()}C</b>`;
+    return `<b>${p}${raw.toLocaleString()}C</b> <span style="color:#ffd76d">+ 黄金の財布 ${bonus.toLocaleString()}C</span> = <b>${total.toLocaleString()}C</b>`;
+  }
+
+  const originalRenderBattleV45=renderBattle;
+  renderBattle=function(){
+    originalRenderBattleV45();
+    try{
+      const range=previousBlockRange();
+      if(state.battleMode==='replay'&&!range)return;
+      const f=activeBattleFloor(),info=battleRewardInfo(f);
+      const nextBoss=Math.ceil(state.floor/5)*5;
+      const nextBonusRaw=milestoneBonus(nextBoss);
+      const nextBonusTotal=Math.round(nextBonusRaw*towerCoinMultiplier()/5)*5;
+      let economy=`${info.replay?'<span class="modeReplay">再クリア報酬 65%</span>':'<span class="modeFirst">初回攻略報酬 100%</span>'}：${v45TowerCoinBreakdown(info.rawBase??info.base,info.base)}`;
+      if(info.milestone)economy+=` ＋ ボス初回到達 ${v45TowerCoinBreakdown(info.rawMilestone??info.milestone,info.milestone,{prefixPlus:true})}`;
+      economy+=`<br>次の5階報酬：${nextBoss}F 初回突破で ${v45TowerCoinBreakdown(nextBonusRaw,nextBonusTotal,{prefixPlus:true})} ＋ <b>${towerRewardLabel(nextBoss)}</b>`;
+      if(retroTowerRewardNotice.length)economy=`<span class="modeFirst">過去の到達報酬を補填：</span><br>${retroTowerRewardNotice.join('<br>')}<br><br>`+economy;
+      if(range)economy+=`<br>${range.start}〜${range.end}Fを周回可能。AUTOは最高到達${state.bestFloor}Fにより <b>最大${maxReplayLoops()}周</b>。`;
+      else economy+=`<br>6F到達後から直前5階の周回が解放される。`;
+      economy+=`<br><span class="equipDropNotice">装備ドロップ</span>：この階 ${Math.round(equipmentDropChance(f)*100)}% / 最高 ${maxEquipmentRarityAtFloor(f)}装備`;
+      $('towerEconomy').innerHTML=economy;
+    }catch(e){console.warn('v45 tower coin breakdown render failed',e)}
   };
 
   const originalLimitRefundCoins=limitRefundCoins;
