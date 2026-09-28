@@ -41,8 +41,10 @@ jobs:
         run: |
           cp patches/team-detail-v44.js site/team-detail-v44.js
           cat patches/progression-v45-part*.js > site/progression-v45.js
+          cat patches/progression-v46-part*.js > site/progression-v46.js
           node --check site/team-detail-v44.js
           node --check site/progression-v45.js
+          node --check site/progression-v46.js
           python3 - <<'PY'
           from pathlib import Path
           p=Path("site/index.html")
@@ -50,6 +52,7 @@ jobs:
           tags=[
               '<script src="team-detail-v44.js?v=45"></script>',
               '<script src="progression-v45.js?v=45"></script>',
+              '<script src="progression-v46.js?v=46"></script>',
           ]
           for tag in tags:
               if tag not in s:
