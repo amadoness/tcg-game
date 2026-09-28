@@ -43,10 +43,12 @@ jobs:
           cat patches/progression-v45-part*.js > site/progression-v45.js
           cat patches/progression-v46-part*.js > site/progression-v46.js
           cat patches/progression-v47-part*.js > site/progression-v47.js
+          cat patches/progression-v48-part*.js > site/progression-v48.js
           node --check site/team-detail-v44.js
           node --check site/progression-v45.js
           node --check site/progression-v46.js
           node --check site/progression-v47.js
+          node --check site/progression-v48.js
           python3 - <<'PY'
           from pathlib import Path
           p=Path("site/index.html")
@@ -56,6 +58,7 @@ jobs:
               '<script src="progression-v45.js?v=45"></script>',
               '<script src="progression-v46.js?v=46"></script>',
               '<script src="progression-v47.js?v=47"></script>',
+              '<script src="progression-v48.js?v=48"></script>',
           ]
           for tag in tags:
               if tag not in s:
