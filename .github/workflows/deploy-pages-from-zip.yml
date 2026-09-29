@@ -55,6 +55,13 @@ jobs:
           from pathlib import Path
           p=Path("site/index.html")
           s=p.read_text(encoding="utf-8")
+          # v49 dungeon cards must exist in CARDS before save-data validation runs.
+          if '"dg01"' not in s:
+              anchor='["n2god02","GOD","《GOD》雷煌天狐・ライカゼウス","god",2]'
+              dungeon_cards=',\n["dg01","R","黄金巨像ミダス","earth",-1],["dg02","R","古代武神ヴァルガ","sword",-1],["dg03","R","結晶獣クリスタロス","holy",-1]'
+              if anchor not in s:
+                  raise SystemExit("v49 dungeon card injection anchor not found")
+              s=s.replace(anchor, anchor+dungeon_cards, 1)
           tags=[
               '<script src="team-detail-v44.js?v=45"></script>',
               '<script src="progression-v45.js?v=45"></script>',
