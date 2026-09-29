@@ -3,7 +3,7 @@
   'use strict';
 
   function setNumbers(){
-    return [...new Set(CARDS.map(c=>Number(c.set)||1))].sort((a,b)=>a-b);
+    return [...new Set(CARDS.filter(c=>c.source!=='dungeon').map(c=>Number(c.set)||1))].sort((a,b)=>a-b);
   }
 
   function ensureSetFilter(){
@@ -39,8 +39,9 @@
 
     const nums=setNumbers();
     const desired=String(state.collectionSetFilter??sel.value??'all');
-    sel.innerHTML='<option value="all">全弾</option>'+nums.map(n=>`<option value="${n}">第${n}弾</option>`).join('');
-    sel.value=nums.some(n=>String(n)===desired)?desired:'all';
+    const hasDungeon=CARDS.some(c=>c.source==='dungeon');
+    sel.innerHTML='<option value="all">全弾</option>'+nums.map(n=>`<option value="${n}">第${n}弾</option>`).join('')+(hasDungeon?'<option value="dungeon">ダンジョン</option>':'');
+    sel.value=(nums.some(n=>String(n)===desired)||(hasDungeon&&desired==='dungeon'))?desired:'all';
     state.collectionSetFilter=sel.value;
     return sel;
   }
@@ -55,10 +56,11 @@
     const setFilter=setSel?.value||'all';
 
     let list=filterCardList(CARDS,{search,owned,rarity,role});
-    if(setFilter!=='all')list=list.filter(c=>String(Number(c.set)||1)===setFilter);
+    if(setFilter==='dungeon')list=list.filter(c=>c.source==='dungeon');
+    else if(setFilter!=='all')list=list.filter(c=>c.source!=='dungeon'&&String(Number(c.set)||1)===setFilter);
     list=sortCardList(list,sort);
 
-    const scopeLabel=setFilter==='all'?'全弾':`第${setFilter}弾`;
+    const scopeLabel=setFilter==='all'?'全弾':(setFilter==='dungeon'?'ダンジョン':`第${setFilter}弾`);
     if($('collectionResultCount'))$('collectionResultCount').textContent=`${scopeLabel}　表示 ${list.length} / ${CARDS.length}種類　・　所持 ${CARDS.filter(c=>(state.counts[c.id]||0)>0).length}種類`;
 
     $('collectionGrid').innerHTML=list.length?list.map(c=>{
