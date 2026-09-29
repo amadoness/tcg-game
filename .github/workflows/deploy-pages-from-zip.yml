@@ -49,6 +49,17 @@ jobs:
           cat patches/progression-v51-part*.js > site/progression-v51.js
           mkdir -p site/images/dungeon
           cp patches/assets/dungeon/*.webp site/images/dungeon/
+          for name in dg_midas dg_varga dg_crystalos; do
+            cat patches/assets/dungeon_b64/${name}.webp.b64.part* | base64 -d > "site/images/dungeon/${name}.webp"
+          done
+          python3 - <<'PY'
+          from pathlib import Path
+          for name in ("dg_midas.webp","dg_varga.webp","dg_crystalos.webp"):
+              p=Path("site/images/dungeon")/name
+              b=p.read_bytes()
+              if len(b)<16000 or b[:4]!=b"RIFF" or b[8:12]!=b"WEBP":
+                  raise SystemExit(f"invalid dungeon image: {name} ({len(b)} bytes)")
+          PY
           node --check site/team-detail-v44.js
           node --check site/progression-v45.js
           node --check site/progression-v46.js
@@ -76,7 +87,7 @@ jobs:
               '<script src="progression-v48.js?v=48"></script>',
               '<script src="progression-v49.js?v=49"></script>',
               '<script src="progression-v50.js?v=50"></script>',
-              '<script src="progression-v51.js?v=51"></script>',
+              '<script src="progression-v51.js?v=52"></script>',
           ]
           for tag in tags:
               if tag not in s:
