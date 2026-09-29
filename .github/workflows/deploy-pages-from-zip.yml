@@ -45,20 +45,22 @@ jobs:
           cat patches/progression-v47-part*.js > site/progression-v47.js
           cat patches/progression-v48-part*.js > site/progression-v48.js
           cat patches/progression-v49-part*.js > site/progression-v49.js
+          cat patches/progression-v50-part*.js > site/progression-v50.js
           node --check site/team-detail-v44.js
           node --check site/progression-v45.js
           node --check site/progression-v46.js
           node --check site/progression-v47.js
           node --check site/progression-v48.js
           node --check site/progression-v49.js
+          node --check site/progression-v50.js
           python3 - <<'PY'
           from pathlib import Path
           p=Path("site/index.html")
           s=p.read_text(encoding="utf-8")
-          # v49 dungeon cards must exist in CARDS before save-data validation runs.
-          if '"dg01"' not in s:
+          # v49 dungeon cards must exist before save-data validation so presets/training slots survive reloads.
+          if '"dg_midas"' not in s:
               anchor='["n2god02","GOD","《GOD》雷煌天狐・ライカゼウス","god",2]'
-              dungeon_cards=',\n["dg01","R","黄金巨像ミダス","earth",-1],["dg02","R","古代武神ヴァルガ","sword",-1],["dg03","R","結晶獣クリスタロス","holy",-1]'
+              dungeon_cards=',\n["dg_midas","R","黄金巨像ミダス","earth",-1],["dg_varga","R","古代武神ヴァルガ","sword",-1],["dg_crystalos","R","結晶獣クリスタロス","holy",-1]'
               if anchor not in s:
                   raise SystemExit("v49 dungeon card injection anchor not found")
               s=s.replace(anchor, anchor+dungeon_cards, 1)
@@ -69,6 +71,7 @@ jobs:
               '<script src="progression-v47.js?v=47"></script>',
               '<script src="progression-v48.js?v=48"></script>',
               '<script src="progression-v49.js?v=49"></script>',
+              '<script src="progression-v50.js?v=50"></script>',
           ]
           for tag in tags:
               if tag not in s:
