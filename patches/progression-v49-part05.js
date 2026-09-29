@@ -1,6 +1,13 @@
       return {uid:'e'+i,card:c,stats:st,hp:st.hp,maxHp:st.hp,shield:0,guard:1,side:'enemy',equipFx:{},bossSpec:bossSpec&&i===0?bossSpec:null,displayName:bossSpec&&i===0?bossSpec.name:null};
     });
+    // Preserve carried dungeon HP across team HP auras.
+    // The base battle aura helper normally sets HP to the new maximum, which would heal between dungeon battles.
+    const carriedHpRatios=Object.fromEntries(allies.map(u=>[u.uid,u.maxHp>0?Math.max(0,Math.min(1,u.hp/u.maxHp)):0]));
     const allyAura=applyTeamPassiveAuras(allies,enemies),enemyAura=applyTeamPassiveAuras(enemies,allies),allUnits=[...allies,...enemies];
+    for(const u of allies){
+      const ratio=carriedHpRatios[u.uid]??1;
+      u.hp=ratio<=0?0:Math.max(1,Math.round(u.maxHp*ratio));
+    }
     for(const u of allies){u.team=allies;u.opponents=enemies;u.allUnits=allUnits}
     for(const u of enemies){u.team=enemies;u.opponents=allies;u.allUnits=allUnits}
     for(const team of [allies,enemies]){
@@ -10,6 +17,8 @@
     for(const u of allies)if(u.equipFx?.startShield)addShield(u,u.maxHp*u.equipFx.startShield);
     if(bossSpec?.teamBarrier){const bossUnit=enemies[0];enemies.forEach(u=>u.bossBarrierSource=bossUnit)}
     $('allyUnits').innerHTML=allies.map(unitHTML).join('');$('enemyUnits').innerHTML=enemies.map(unitHTML).join('');
+    // unitHTML starts HP bars at 100%; immediately sync them to carried HP.
+    for(const u of allUnits)refreshUnit(u);
     if(bossSpec){$('battleResult').className='battleResult bossIntro';$('battleResult').textContent=`DUNGEON BOSS　${bossSpec.name}`;logBattle(`⚔ BOSS「${bossSpec.name}」出現！`,'logEnemy');logBattle(`特殊能力「${bossSpec.title}」：${bossSpec.desc}`,'logEnemy');await battlePause(650);$('battleResult').className='battleResult';$('battleResult').textContent=''}
     else if(elite)logBattle('⚔ ELITE BATTLE！ 通常戦より強化された敵が出現。','logEnemy');
     logBattle(`${d.name} ${df.label}　${stage}/5戦 開始。敵：${enemies.map(unitName).join(' / ')}`,'logSkill');
