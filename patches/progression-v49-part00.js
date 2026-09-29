@@ -22,18 +22,18 @@
       id:'gold',name:'黄金洞窟',tag:'COINを大量獲得',desc:'黄金に満ちた洞窟。5戦を突破してCOINと専用カードを狙う。',bossId:'dg_midas',bossName:'黄金巨像ミダス',accent:'#e4aa3a',
       pool:['c01','u07','r03','n2c05','n2u07','n2r02','n2s06'],
       rewards:{
-        normal:{coin:[500,700],card:.20,crystal:0,player:25,mastery:0,ultimate:0},
-        hard:{coin:[900,1200],card:.35,crystal:0,player:45,mastery:0,ultimate:0},
-        hell:{coin:[1500,2000],card:.50,crystal:0,player:80,mastery:0,ultimate:0}
+        normal:{coin:[10000,15000],card:.20,crystal:0,player:250,mastery:0,ultimate:0},
+        hard:{coin:[25000,35000],card:.35,crystal:0,player:600,mastery:0,ultimate:0},
+        hell:{coin:[60000,90000],card:.50,crystal:0,player:1500,mastery:0,ultimate:0}
       }
     },
     training:{
       id:'training',name:'修練の遺跡',tag:'育成EXPを大量獲得',desc:'古代の武人が眠る修練場。PLAYER・熟練・ULTIMATE EXPをまとめて鍛える。',bossId:'dg_varga',bossName:'古代武神ヴァルガ',accent:'#78a9ff',
       pool:['c03','u06','r05','s01','s05','n2c01','n2u02','n2s01','n2s03'],
       rewards:{
-        normal:{coin:[100,150],card:.20,crystal:0,player:150,mastery:10,ultimate:30},
-        hard:{coin:[200,300],card:.35,crystal:0,player:350,mastery:20,ultimate:70},
-        hell:{coin:[350,500],card:.50,crystal:0,player:700,mastery:40,ultimate:150}
+        normal:{coin:[1000,1500],card:.20,crystal:0,player:5000,mastery:500,ultimate:200},
+        hard:{coin:[2500,3500],card:.35,crystal:0,player:15000,mastery:1500,ultimate:500},
+        hell:{coin:[5000,7000],card:.50,crystal:0,player:40000,mastery:3000,ultimate:1000}
       }
     },
     crystal:{
