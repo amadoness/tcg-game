@@ -48,6 +48,7 @@ jobs:
           cat patches/progression-v50-part*.js > site/progression-v50.js
           cat patches/progression-v51-part*.js > site/progression-v51.js
           cat patches/progression-v52-part*.js > site/progression-v52.js
+          cat patches/progression-v53-part*.js > site/progression-v53.js
           mkdir -p site/images/dungeon
           cp patches/assets/dungeon/*.webp site/images/dungeon/
           for name in dg_midas dg_varga dg_crystalos; do
@@ -70,6 +71,7 @@ jobs:
           node --check site/progression-v50.js
           node --check site/progression-v51.js
           node --check site/progression-v52.js
+          node --check site/progression-v53.js
           python3 - <<'PY'
           from pathlib import Path
           p=Path("site/index.html")
@@ -91,6 +93,7 @@ jobs:
               '<script src="progression-v50.js?v=50"></script>',
               '<script src="progression-v51.js?v=52"></script>',
               '<script src="progression-v52.js?v=52"></script>',
+              '<script src="progression-v53.js?v=53"></script>',
           ]
           for tag in tags:
               if tag not in s:
