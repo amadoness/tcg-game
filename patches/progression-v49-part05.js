@@ -66,13 +66,16 @@
 
   function grantDungeonClearReward(run){
     const d=DUNGEONS[run.dungeonId],df=DIFFICULTIES[run.diffId],r=d.rewards[df.id];
-    const rawCoin=randomStep5(r.coin[0],r.coin[1]);state.coins=(Number(state.coins)||0)+rawCoin;
+    const rawCoin=randomStep5(r.coin[0],r.coin[1]);
+    const coinMult=state.treasures?.goldWallet?1.10:1;
+    const finalCoin=Math.round(rawCoin*coinMult/5)*5;
+    state.coins=(Number(state.coins)||0)+finalCoin;
     const train=grantTrainingRewards(r);
     let cardDrop=null,crystal=0;
     if(Math.random()<r.card){const card=dungeonCardById(d.bossId),g=grantOwnedCopy(card);cardDrop={card,g}}
     if(r.crystal>0&&Math.random()<r.crystal){ensureDungeonState();state.consumables=state.consumables||{};state.consumables.limitCrystal=(Number(state.consumables.limitCrystal)||0)+1;crystal=1}
     state.dungeonClears[d.id][df.id]=(Number(state.dungeonClears[d.id][df.id])||0)+1;
     save();updateStats();renderCollection();renderTeam();
-    return {coin:rawCoin,train,cardDrop,crystal};
+    return {coin:finalCoin,coinBase:rawCoin,coinBonus:finalCoin-rawCoin,train,cardDrop,crystal};
   }
 
