@@ -68,7 +68,7 @@
     const d=DUNGEONS[run.dungeonId],df=DIFFICULTIES[run.diffId],r=d.rewards[df.id];
     const rawCoin=randomStep5(r.coin[0],r.coin[1]);
     const coinMult=state.treasures?.goldWallet?1.10:1;
-    const finalCoin=Math.round(rawCoin*coinMult/5)*5;
+    const finalCoin=Math.round(rawCoin*coinMult);
     state.coins=(Number(state.coins)||0)+finalCoin;
     const train=grantTrainingRewards(r);
     let cardDrop=null,crystal=0;
