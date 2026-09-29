@@ -1,5 +1,8 @@
   function rewardSummary(reward){
-    const p=[`COIN +${reward.coin.toLocaleString()}C`];
+    const coinText=reward.coinBonus>0
+      ?`COIN ${reward.coinBase.toLocaleString()}C + 黄金の財布 ${reward.coinBonus.toLocaleString()}C = ${reward.coin.toLocaleString()}C`
+      :`COIN +${reward.coin.toLocaleString()}C`;
+    const p=[coinText];
     if(reward.train.player)p.push(`PLAYER EXP +${reward.train.player}`);
     if(reward.train.mastery)p.push(`熟練EXP +${reward.train.mastery}/枚`);
     if(reward.train.ultimate)p.push(`ULT EXP +${reward.train.ultimate}/対象`);
