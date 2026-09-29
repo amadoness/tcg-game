@@ -15,7 +15,7 @@
     {id:'dg_varga',r:'R',name:'古代武神ヴァルガ',theme:'sword',set:0,source:'dungeon',dungeon:'training'},
     {id:'dg_crystalos',r:'R',name:'結晶獣クリスタロス',theme:'holy',set:0,source:'dungeon',dungeon:'crystal'}
   ];
-  for(const c of DUNGEON_CARDS)if(!CARDS.some(x=>x.id===c.id))CARDS.push(c);
+  for(const c of DUNGEON_CARDS){const existing=CARDS.find(x=>x.id===c.id);if(existing)Object.assign(existing,c);else CARDS.push(c)}
 
   const DUNGEONS={
     gold:{
