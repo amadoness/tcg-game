@@ -75,7 +75,13 @@
 
   function grantDungeonClearReward(run){
     const d=DUNGEONS[run.dungeonId],df=DIFFICULTIES[run.diffId],r=d.rewards[df.id];
-    const rawCoin=randomStep5(r.coin[0],r.coin[1]);
+    let coinRange=r.coin;
+    if(d.id==='gold'&&typeof window.V54GoldDungeonReward==='function'){
+      const clearCount=Number(state.dungeonClears?.[d.id]?.[df.id]||0);
+      const v54=window.V54GoldDungeonReward(df.id,clearCount);
+      if(Array.isArray(v54?.coin)&&v54.coin.length===2)coinRange=v54.coin;
+    }
+    const rawCoin=randomStep5(coinRange[0],coinRange[1]);
     const coinMult=state.treasures?.goldWallet?1.10:1;
     const finalCoin=Math.round(rawCoin*coinMult);
     state.coins=(Number(state.coins)||0)+finalCoin;

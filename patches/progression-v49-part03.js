@@ -27,7 +27,16 @@
   function dungeonClearCount(id,diff){return Number(state.dungeonClears?.[id]?.[diff]||0)}
   function dungeonRewardText(d,df){
     const r=d.rewards[df.id],parts=[];
-    if(d.id==='gold')parts.push(`COIN ${r.coin[0].toLocaleString()}〜${r.coin[1].toLocaleString()}C`);
+    if(d.id==='gold'){
+      const clear=dungeonClearCount(d.id,df.id);
+      const v54=typeof window.V54GoldDungeonReward==='function'?window.V54GoldDungeonReward(df.id,clear):null;
+      if(v54){
+        const range=v54.repeat;
+        parts.push(clear===0
+          ?`COIN 初回 ${v54.first.toLocaleString()}C / 周回 ${range[0].toLocaleString()}〜${range[1].toLocaleString()}C`
+          :`COIN ${range[0].toLocaleString()}〜${range[1].toLocaleString()}C`);
+      }else parts.push(`COIN ${r.coin[0].toLocaleString()}〜${r.coin[1].toLocaleString()}C`);
+    }
     if(d.id==='training')parts.push(`PLAYER EXP +${r.player}`,`熟練EXP +${r.mastery}/枚`,`ULT EXP +${r.ultimate}/枚`);
     if(d.id==='crystal')parts.push(`限界結晶 ${formatPct(r.crystal)}`);
     parts.push(`専用カード ${formatPct(r.card)}`);

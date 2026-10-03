@@ -49,6 +49,7 @@ jobs:
           cat patches/progression-v51-part*.js > site/progression-v51.js
           cat patches/progression-v52-part*.js > site/progression-v52.js
           cat patches/progression-v53-part*.js > site/progression-v53.js
+          cat patches/progression-v54-part*.js > site/progression-v54.js
           mkdir -p site/images/dungeon
           cp patches/assets/dungeon/*.webp site/images/dungeon/
           for name in dg_midas dg_varga dg_crystalos; do
@@ -72,6 +73,7 @@ jobs:
           node --check site/progression-v51.js
           node --check site/progression-v52.js
           node --check site/progression-v53.js
+          node --check site/progression-v54.js
           python3 - <<'PY'
           from pathlib import Path
           p=Path("site/index.html")
@@ -94,10 +96,16 @@ jobs:
               '<script src="progression-v51.js?v=52"></script>',
               '<script src="progression-v52.js?v=52"></script>',
               '<script src="progression-v53.js?v=53"></script>',
+              '<script src="progression-v54.js?v=54"></script>',
           ]
+          if "</body>" not in s and any(tag not in s for tag in tags):
+              raise SystemExit("script injection failed: </body> not found")
           for tag in tags:
               if tag not in s:
                   s=s.replace("</body>", tag+"\n</body>")
+          missing=[tag for tag in tags if tag not in s]
+          if missing:
+              raise SystemExit("script injection failed: "+", ".join(missing))
           p.write_text(s, encoding="utf-8")
           PY
 
